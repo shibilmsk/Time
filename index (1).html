@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roman Clock with ION A Medium</title>
+  <style>
+    @font-face {
+      font-family: 'IONAMedium';
+      src: url('IONAMedium.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background-color: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .clock {
+      width: 320px;
+      height: 320px;
+      border: 12px solid #fff;
+      border-radius: 50%;
+      position: relative;
+      background: radial-gradient(circle at center, #111, #000);
+      box-shadow:
+        0 0 25px #fff4,
+        inset 0 0 10px #111;
+    }
+
+    .center-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 5px #aaa;
+    }
+
+    .hand {
+      position: absolute;
+      top: 50%;
+      transform-origin: 100%;
+    }
+
+    .hand#hour {
+      width: 25%;
+      height: 4px;
+      background: #fff;
+      left: 25%;
+      border-radius: 2px;
+      box-shadow: 0 0 3px #fff;
+    }
+
+    .hand#minute {
+      width: 35%;
+      height: 2.5px;
+      background: #ddd;
+      left: 15%;
+      border-radius: 2px;
+      box-shadow: 0 0 2px #bbb;
+    }
+
+    .hand#second {
+      width: 42%;
+      height: 1.5px;
+      background: #888;
+      left: 8%;
+      border-radius: 2px;
+      box-shadow: 0 0 2px #666;
+    }
+
+    .numeral {
+      position: absolute;
+      color: #fff;
+      font-size: 1.3rem;
+      font-family: 'Georgia', serif;
+      font-weight: bold;
+      transform: translate(-50%, -50%);
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .dot {
+      position: absolute;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform-origin: center;
+      background-color: #555;
+      width: 2px;
+      height: 2px;
+    }
+
+    .digital {
+      margin-top: 20px;
+      font-family: 'IONAMedium', monospace;
+      font-size: 2.5rem;
+      color: #fff;
+      text-shadow: 0 0 10px #fff;
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock">
+    <div class="hand" id="hour"></div>
+    <div class="hand" id="minute"></div>
+    <div class="hand" id="second"></div>
+    <div class="center-dot"></div>
+  </div>
+  <div class="digital" id="digital"></div>
+
+  <script>
+    const romanNumerals = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+    const clock = document.getElementById('clock');
+    const digitalDisplay = document.getElementById('digital');
+
+    // Add Roman numerals
+    for (let i = 0; i < 12; i++) {
+      const angle = (i * 30 - 60) * (Math.PI / 180);
+      const radius = 135;
+      const x = 160 + radius * Math.cos(angle);
+      const y = 160 + radius * Math.sin(angle);
+
+      const numeral = document.createElement('div');
+      numeral.className = 'numeral';
+      numeral.innerText = romanNumerals[i];
+      numeral.style.left = `${x}px`;
+      numeral.style.top = `${y}px`;
+      clock.appendChild(numeral);
+    }
+
+    // Add minute dots (excluding hour positions)
+    for (let i = 0; i < 60; i++) {
+      if (i % 5 === 0) continue;
+
+      const angle = (i * 6 - 90) * (Math.PI / 180);
+      const radius = 150;
+      const x = 160 + radius * Math.cos(angle);
+      const y = 160 + radius * Math.sin(angle);
+
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.style.left = `${x}px`;
+      dot.style.top = `${y}px`;
+      clock.appendChild(dot);
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const indiaTime = new Date(utc + 5.5 * 3600000);
+
+      const hours = indiaTime.getHours() % 12;
+      const minutes = indiaTime.getMinutes();
+      const seconds = indiaTime.getSeconds();
+
+      const hourDeg = (hours * 30) + (minutes * 0.5);
+      const minuteDeg = (minutes * 6) + (seconds * 0.1);
+      const secondDeg = seconds * 6;
+
+      document.getElementById('hour').style.transform = `rotate(${hourDeg}deg)`;
+      document.getElementById('minute').style.transform = `rotate(${minuteDeg}deg)`;
+      document.getElementById('second').style.transform = `rotate(${secondDeg}deg)`;
+
+      // Digital clock
+      const h = String(indiaTime.getHours()).padStart(2, '0');
+      const m = String(minutes).padStart(2, '0');
+      const s = String(seconds).padStart(2, '0');
+      digitalDisplay.textContent = `${h}:${m}:${s}`;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</body>
+</html>
